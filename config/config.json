@@ -1,0 +1,17 @@
+{
+  "secret": "my node application rocks secret",
+  "audience": "rahul node app audience",
+  "issuer": "https://rahul.com",
+  "jwt_expiry":18000,
+  "mongo_db_url": "mongodb://localhost/ecommerce",
+
+
+  "redis_host": "localhost",
+  "redis_port": 6379,
+
+  "aws_bucket_name":"rahulecommercetest",
+  "aws_region":"ap-south-1",
+  "aws_categories_foldername": "categories",
+
+  "localhost":false
+}
