@@ -14,5 +14,5 @@
   "aws_categories_foldername": "categories",
   "aws_products_foldername": "products",
 
-  "localhost":true
+  "localhost":false
 }
