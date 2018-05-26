@@ -23,8 +23,12 @@ var ProductSchema = new Schema({
   },
   rating: {
     type: Number,
+  },
+  image: {
+    type: String,
+    required: true,
+    trim: true
   }
-
 
 });
 

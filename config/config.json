@@ -12,6 +12,7 @@
   "aws_bucket_name":"rahulecommercetest",
   "aws_region":"ap-south-1",
   "aws_categories_foldername": "categories",
+  "aws_products_foldername": "products",
 
-  "localhost":false
+  "localhost":true
 }
