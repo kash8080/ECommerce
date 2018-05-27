@@ -6,5 +6,5 @@ const config  = require('../config');
 // header should be Authentication : Bearer <token>
 // add secret in environmental variable instead of savinf it in a file like this
 module.exports = exp_jwt({
-  secret: config.secret
+  secret: process.env.jwt_secret
 });

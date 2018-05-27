@@ -20,7 +20,7 @@ module.exports={
     client.sadd(userId, token);
     //client.set(token, Date.now(), 'EX', config.jwt_expiry);
     //or
-    client.expire(token, config.jwt_expiry);
+    client.expire(token, process.env.jwt_expiry);
   },
   checkIfJwtExists:function(client,key,token,done){
     client.sismember(key,token,function(err,reply) {

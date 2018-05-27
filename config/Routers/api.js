@@ -7,6 +7,7 @@ const Product=require('../../app/models/Product');
 const passport=require('passport');
 const AuthRouter = require('./AuthRouter');
 const UserRouter = require('./UserRouter');
+const PaymentRouter = require('./PaymentRouter');
 const jwtCheck = require('../middlewares/jwtCheck');
 const config  = require('../config');
 var IncompleteDataError = require('../errors/IncompleteDataError');
@@ -16,8 +17,10 @@ var NotFoundError = require('../errors/NotFoundError');
 const redis_jwt= require('../libs/redis_jwt');
 const aws_helper= require('../libs/aws_helper');
 var util = require('util');
-
 var redis = require('redis');
+
+
+
 var client;
 if(config.localhost){
   client = redis.createClient({host : config.redis_host, port : config.redis_port});
@@ -35,9 +38,9 @@ client.on("connect", function () {
   console.log("redis connect success");
 });
 
-
 new AuthRouter(router,client);
 new UserRouter(router);
+new PaymentRouter(router,client);
 
 
 router.get('/getKey',function(req,res,next){
