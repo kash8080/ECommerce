@@ -45,4 +45,26 @@ function putObject(rawfile,foldername,filename,done){
 
 }
 
-module.exports=putObject;
+
+function deleteObject(fileurl,done){
+  //https://rahulecommercetest.s3.ap-south-1.amazonaws.com/categories/1527343039341.jpg
+  //const file=path.join(__dirname, 'app','public','design.jpg');
+  var photoKey = fileurl.substring(fileurl.lastIndexOf("amazonaws.com")+14);
+  console.log('decoded photo key='+photoKey);
+  var params = {
+  Bucket: bucketName,
+  Key: photoKey
+ };
+ s3.deleteObject(params, function(err, data) {
+   if (err){
+     done(false,data);
+   }
+   else {
+     done(true);   // successful response
+   }
+
+ });
+}
+
+module.exports.deleteObject=deleteObject;
+module.exports.putObject=putObject;
