@@ -1,5 +1,6 @@
 'use strict';
 const User=require('../../app/models/User');
+const Merchant=require('../../app/models/Merchant');
 const passport=require('passport');
 const jwt     = require('jsonwebtoken');
 const createJwtToken= require('../libs/createJwtToken');
@@ -21,20 +22,12 @@ class AuthRouter {
   }
 
   registerRoutes() {
-    this.router.get('/testing',this.testResponse.bind(this));
     this.router.post('/register', this.register.bind(this));
     this.router.post('/login', this.login.bind(this));
     this.router.get('/logout',jwtCheck,this.addRedisClientMiddleware.bind(this),JwtWhitelistCheck, this.logout.bind(this));
     this.router.get('/validatetoken',jwtCheck,this.addRedisClientMiddleware.bind(this),JwtWhitelistCheck, this.onValidateTokenSuccess.bind(this));
 
   }
-
-  testResponse(req,res,next){
-    console.log('testResponse');
-    res.send({
-      message:"testResponse"
-    });
-  };
 
   onValidateTokenSuccess(req,res,next){
     console.log('onValidateTokenSuccess');
@@ -51,26 +44,36 @@ class AuthRouter {
 
   register(req,res,next){
     console.log('register body='+JSON.stringify(req.body));
-    if (req.body.email && req.body.username && req.body.password && req.body.passwordConf) {
-      // confirm that user typed same password twice
-      if (req.body.password !== req.body.passwordConf) {
-        var err = new Error('Passwords do not match.');
-        err.status = 400;
-        return next(err);
-      }
-      var userData = {
+    if (req.body.email && req.body.username && req.body.password && req.body.type ) {
+      var usertype=req.body.type;
+      var input = {
         email: req.body.email,
         username: req.body.username,
         password: req.body.password
       }
-      //use schema.create to insert data into the db
-      User.create(userData, function (err, user) {
-        if (err) {
-          return next(err)
-        } else {
-          return res.send(user);
-        }
-      });
+
+      if(usertype==0){
+        //user
+        //use schema.create to insert data into the db
+        User.create(input, function (err, user) {
+          if (err) {
+            return next(err)
+          } else {
+            return res.send({user:user});
+          }
+        });
+
+      }else if(usertype==1){
+        // merchant
+        //use schema.create to insert data into the db
+        Merchant.create(input, function (err, user) {
+          if (err) {
+            return next(err)
+          } else {
+            return res.send({user:user});
+          }
+        });
+      }
     }else{
       return next(new IncompleteDataError('Enter all values'));
     }
@@ -79,10 +82,12 @@ class AuthRouter {
 
   login(req, res, next) {
     var obj=this;
-    if(!req.body.email || !req.body.password){
+    if(!req.body.email || !req.body.password || !req.body.type){
       // in default callback .. the passport just send smple string in response when data is invalid
       return next(new IncompleteDataError('Enter all values'));
     }
+    var type=req.body.type;
+
     passport.authenticate('local', function(err, user, info) {
       if (err) { return next(err); }
       if (!user) {
@@ -91,8 +96,9 @@ class AuthRouter {
         err.status = 401;
         return next(err);
       }
+      user.type=type;
       var token = createJwtToken(user);
-      redis_jwt.addJwtToRedis(obj.redisClient,user._id,token);
+      redis_jwt.addJwtToRedis(obj.redisClient,type,user._id,token);
       return res.send({
         user:user,
         token:token
@@ -106,13 +112,15 @@ class AuthRouter {
     if(user==null){
       return next(new NotLoggedInError());
     }else{
-      redis_jwt.removeKeyFromRedis(this.redisClient,user._id,function(result){
+      redis_jwt.removeKeyFromRedis(this.redisClient,user.type,user._id,function(result){
         if(result){
           return res.send({
             message: "token deleted!"
           });
         }else{
-          next("invalid token");
+          return res.send({
+            message: "token not available"
+          });
         }
 
       });

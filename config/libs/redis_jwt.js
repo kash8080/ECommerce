@@ -1,8 +1,9 @@
 const config  = require('../config');
 
 module.exports={
-  removeKeyFromRedis:function(client,key,done){
-    client.del(key, function(err, reply) {
+  removeKeyFromRedis:function(client,type,key,done){
+    var prefix=type+"__";
+    client.del(prefix+key, function(err, reply) {
       if(!err) {
         if(reply === 1) {
           return done(true);
@@ -16,14 +17,16 @@ module.exports={
     });
   },
 
-  addJwtToRedis:function(client,userId,token){
-    client.sadd(userId, token);
+  addJwtToRedis:function(client,type,userId,token){
+    var prefix=type+"__";
+    client.sadd(prefix+userId, token);
     //client.set(token, Date.now(), 'EX', config.jwt_expiry);
     //or
-    client.expire(token, process.env.jwt_expiry);
+    client.expire(prefix+userId, process.env.jwt_expiry);
   },
-  checkIfJwtExists:function(client,key,token,done){
-    client.sismember(key,token,function(err,reply) {
+  checkIfJwtExists:function(client,type,key,token,done){
+    var prefix=type+"__";
+    client.sismember(prefix+key,token,function(err,reply) {
       if(!err) {
         console.log('checkIfJwtExists reply='+reply);
         if(reply === 1) {

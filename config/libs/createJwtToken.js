@@ -7,10 +7,11 @@ function createIdToken(user){
     {
       _id:user._id,
       email:user.email,
-      username:user.username
+      username:user.username,
+      type:user.type
     },
-    config.secret,
-    { expiresIn: process.env.jwt_expiry }
+    process.env.jwt_secret,
+    { expiresIn: process.env.jwt_expiry+" seconds" }
   );
 }
 
