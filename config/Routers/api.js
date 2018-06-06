@@ -9,6 +9,7 @@ const AuthRouter = require('./AuthRouter');
 const UserRouter = require('./UserRouter');
 const PaymentRouter = require('./PaymentRouter');
 const ProductsRouter = require('./ProductsRouter');
+const CartRouter = require('./CartRouter');
 const jwtCheck = require('../middlewares/jwtCheck');
 const config  = require('../config');
 var IncompleteDataError = require('../errors/IncompleteDataError');
@@ -43,7 +44,7 @@ new AuthRouter(router,client);
 new UserRouter(router);
 new PaymentRouter(router,client);
 new ProductsRouter(router,client);
-
+new CartRouter(router,client);
 
 router.get('/getKey',function(req,res,next){
   console.log('getKey');

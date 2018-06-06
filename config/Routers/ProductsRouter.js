@@ -55,10 +55,14 @@ class ProductRouter {
       }
       console.log('product found result '+util.inspect({docs:docs}));
       //delete product from database
-      Product.deleteOne({ _id: id }, function (err) {
+      Product.deleteOne({ _id: id }, function (err,obj) {
         if (err) {
           return next(err);
         }else{
+          if(obj.n==0){
+            //no product deleted with that id
+            return next(new NotFoundError());
+          }
           //delete product image
           aws_helper.deleteObject(docs.image,function(result,error){
             if(result){

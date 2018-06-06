@@ -33,6 +33,24 @@ var ProductSchema = new Schema({
 });
 
 
+ProductSchema.statics.getProduct = function (id, callback) {
+  Product.findOne({ _id: id }).lean().exec(function (err, product) {
+      if (err) {
+        console.log('error in exec'+err);
+        return callback(err)
+      } else if (!product) {
+        console.log('Product not found.');
+        var err = new Error('Product not found.');
+        err.status = 401;
+        return callback(err);
+      }
+      console.log('Product found.');
+      return callback(null, product);
+
+    });
+}
+
+
 
 var Product = mongoose.model('Product', ProductSchema);
 
