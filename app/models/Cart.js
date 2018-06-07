@@ -18,6 +18,10 @@ var CartSchema = new Schema({
     type: Number,
     required: true,
   },
+  checkedoutdate: {
+    type: Number,
+    required: true,
+  },
   checkedout: {
     type: Boolean,
     required: true
@@ -54,6 +58,26 @@ CartSchema.statics.isCartCheckedOut = function (cartid, callback) {
       }
       console.log('cart found. checkedout='+cart.checkedout);
       return callback(null, cart.checkedout);
+
+    });
+}
+
+CartSchema.statics.setCheckedOut = function (cartid, callback) {
+  var data={
+    checkedout : true,
+    checkedoutdate: Date.now()
+  }
+  Cart.findOneAndUpdate({ _id: cartid},data,{new:true}).lean().exec(function (err, cart) {
+      if (err) {
+        console.log('error in exec'+err);
+        return callback(err)
+      } else if (!cart) {
+        console.log('Cart not found.');
+        var err = new Error('Cart not found.');
+        err.status = 401;
+        return callback(err);
+      }
+      return callback(null);
 
     });
 }

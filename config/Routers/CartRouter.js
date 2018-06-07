@@ -3,11 +3,9 @@ const User=require('../../app/models/User');
 const Cart=require('../../app/models/Cart');
 const Product=require('../../app/models/Product');
 const CartItem=require('../../app/models/CartItem');
-const Merchant=require('../../app/models/Merchant');
 const passport=require('passport');
 const jwt     = require('jsonwebtoken');
 const createJwtToken= require('../libs/createJwtToken');
-const redis_jwt= require('../libs/redis_jwt');
 const jwtCheck= require('../middlewares/jwtCheck');
 const JwtWhitelistCheck= require('../middlewares/JwtWhitelistCheck');
 var IncompleteDataError = require('../errors/IncompleteDataError');
@@ -84,10 +82,26 @@ class AuthRouter {
           return next(err);
         }else{
           CartItem.getProductsInCart(cartid,function(err2,list){
-              if(err2){
-                return next(err2);
-              }
-              return res.send({data:list});
+            if(err2){
+              return next(err2);
+            }
+            if(list.length==0){
+              return res.send({data:[],products:[]});
+            }
+            var i;
+            var query=[];
+            for(i=0;i<list.length ;i++){
+              var item=list[i];
+              query.push({_id:item.productid});
+            }
+            console.log('query list ='+JSON.stringify(query));
+            Product.find( { $or: query}  , function(err3,docs){
+                if(err3){
+                    return next(err3);
+                }
+                return res.send({data:list,products:docs});
+
+            });
 
           });
         }

@@ -1,9 +1,10 @@
 'use strict';
 const User=require('../../app/models/User');
+const Cart=require('../../app/models/Cart');
+const CartItem=require('../../app/models/CartItem');
 const passport=require('passport');
 const jwt     = require('jsonwebtoken');
 const createJwtToken= require('../libs/createJwtToken');
-const redis_jwt= require('../libs/redis_jwt');
 const jwtCheck= require('../middlewares/jwtCheck');
 const JwtWhitelistCheck= require('../middlewares/JwtWhitelistCheck');
 var IncompleteDataError = require('../errors/IncompleteDataError');
@@ -31,7 +32,8 @@ class AuthRouter {
   registerRoutes() {
 
     this.router.get('/payment/getClientToken',jwtCheck,this.addRedisClientMiddleware.bind(this),JwtWhitelistCheck, this.generateBraintreeClientToken.bind(this));
-    this.router.post('/payment/checkout',jwtCheck,this.addRedisClientMiddleware.bind(this),JwtWhitelistCheck, this.startPayment.bind(this));
+    this.router.post('/payment/checkout',jwtCheck,this.addRedisClientMiddleware.bind(this),JwtWhitelistCheck,
+                                        this.getTotalAmountMiddleware.bind(this),this.startPayment.bind(this));
 
   }
 
@@ -54,11 +56,46 @@ class AuthRouter {
     });
   };
 
+  //calculates total payble amount and save that in the request
+    getTotalAmountMiddleware(req,res,next){
+      console.log('getTotalAmountMiddleware');
+      var user=req.user;
+
+      User.updateCartIdIfNeeded(user._id,function(err,cartid){
+        if(err){
+          return next(err);
+        }else{
+          CartItem.getProductsInCart(cartid,function(err2,list){
+            if(err2){
+              return next(err2);
+            }
+            var i;
+            var amount=0;
+            for(i=0;i<list.length ;i++){
+              var item=list[i];
+              amount+=(item.quantity*item.price);
+            }
+            console.log('cart amount='+amount);
+            req.cartamount=amount;
+            req.cartid=cartid;
+            next();
+          });
+        }
+      });
+    };
+
 
   startPayment(req,res,next){
     var nonce=req.headers.nonce;
+    var amount=req.cartamount;
+    var cartid=req.cartid;
+    console.log('startPayment amount='+amount);
+    if(amount==0){
+      return next(new Error("Amount is 0"));
+    }
+
     gateway.transaction.sale({
-      amount: "12.00",
+      amount: amount,
       paymentMethodNonce: nonce,
       options: {
         //check examples here https://developers.braintreepayments.com/reference/request/transaction/sale/node
@@ -68,12 +105,17 @@ class AuthRouter {
         if(result.success){
           // See result.transaction for details
           //console.log('transaction success='+util.inspect({transaction:result.transaction}));
-          return res.send('succes');
+          Cart.setCheckedOut(cartid,function(err){
+            return res.send({amount:amount});
+          });
         }else{
           next(err);
         }
     });
   }
+
+
+
 
 
 }

@@ -13,14 +13,13 @@ function checkJwtInRedis(req,res,next){
   }
   redisClient=res.locals.redisClient;
   var id=user._id;
-  var type=user.type;
   var parts = req.headers.authorization.split(' ');
 
   if (parts.length == 2) {
     var scheme = parts[0];
     var credentials = parts[1];
     if(scheme=='Bearer' && credentials.length>0){
-       redis_jwt.checkIfJwtExists(redisClient,type,id,credentials,function(result){
+       redis_jwt.checkIfJwtExists(redisClient,id,credentials,function(result){
           if(!result){
             req.user=null;
             console.log('checkJwtInRedis : token is not found in redis');

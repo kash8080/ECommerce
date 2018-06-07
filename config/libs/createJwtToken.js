@@ -7,8 +7,7 @@ function createIdToken(user){
     {
       _id:user._id,
       email:user.email,
-      username:user.username,
-      type:user.type
+      username:user.username
     },
     process.env.jwt_secret,
     { expiresIn: process.env.jwt_expiry+" seconds" }

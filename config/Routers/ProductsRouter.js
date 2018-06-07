@@ -5,7 +5,6 @@ var NotLoggedInError = require('../errors/NotLoggedInError');
 var NotFoundError = require('../errors/NotFoundError');
 var IncompleteDataError = require('../errors/IncompleteDataError');
 const formidable=require('formidable');
-const redis_jwt= require('../libs/redis_jwt');
 const jwtCheck= require('../middlewares/jwtCheck');
 const JwtWhitelistCheck= require('../middlewares/JwtWhitelistCheck');
 var util = require('util');
@@ -36,7 +35,7 @@ class ProductRouter {
       if(err){
         return next(err);
       }
-      console.log('product list result='+util.inspect({docs:docs}));
+      //console.log('product list result='+util.inspect({docs:docs}));
       return res.send({data:docs});
     })
 
