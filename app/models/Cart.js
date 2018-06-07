@@ -19,8 +19,7 @@ var CartSchema = new Schema({
     required: true,
   },
   checkedoutdate: {
-    type: Number,
-    required: true,
+    type: Number
   },
   checkedout: {
     type: Boolean,
