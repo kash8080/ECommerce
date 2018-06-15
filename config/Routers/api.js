@@ -20,8 +20,7 @@ const redis_jwt= require('../libs/redis_jwt');
 const aws_helper= require('../libs/aws_helper');
 var util = require('util');
 var redis = require('redis');
-
-
+const logger=require('../libs/logger');
 
 var client;
 if(config.localhost){
@@ -34,10 +33,11 @@ const router=express.Router();
 
 
 client.on("error", function (err) {
-  console.log("redis connect Error " + err);
+  logger.error("redis connect Error " + err);
 });
 client.on("connect", function () {
-  console.log("redis connect success");
+  logger.info("redis connect success");
+
 });
 
 new AuthRouter(router,client);
