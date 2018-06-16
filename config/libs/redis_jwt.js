@@ -17,10 +17,10 @@ module.exports={
   },
 
   addJwtToRedis:function(client,userId,token){
-    client.sadd(userId, token);
+    client.sadd(userId.toString(), token);
     //client.set(token, Date.now(), 'EX', config.jwt_expiry);
     //or
-    client.expire(userId, process.env.jwt_expiry);
+    client.expire(userId.toString(), process.env.jwt_expiry);
   },
   checkIfJwtExists:function(client,key,token,done){
     client.sismember(key,token,function(err,reply) {

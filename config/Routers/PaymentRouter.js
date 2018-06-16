@@ -1,6 +1,7 @@
 'use strict';
 const User=require('../../app/models/User');
 const Cart=require('../../app/models/Cart');
+const Order=require('../../app/models/Order');
 const CartItem=require('../../app/models/CartItem');
 const passport=require('passport');
 const jwt     = require('jsonwebtoken');
@@ -10,8 +11,9 @@ const JwtWhitelistCheck= require('../middlewares/JwtWhitelistCheck');
 var IncompleteDataError = require('../errors/IncompleteDataError');
 var NotLoggedInError = require('../errors/NotLoggedInError');
 var util = require('util');
-
 const config  = require('../config');
+
+const logger  = require('../libs/logger');
 var braintree = require("braintree");
 
 
@@ -89,9 +91,16 @@ class AuthRouter {
     var nonce=req.headers.nonce;
     var amount=req.cartamount;
     var cartid=req.cartid;
-    console.log('startPayment amount='+amount);
+    var userid=req.user._id;
+
+    logger.debug('startPayment amount='+amount);
     if(amount==0){
       return next(new Error("Amount is 0"));
+    }
+    var orderdata={
+      userid:userid,
+      cartid:cartid,
+      amount:amount
     }
 
     gateway.transaction.sale({
@@ -106,7 +115,16 @@ class AuthRouter {
           // See result.transaction for details
           //console.log('transaction success='+util.inspect({transaction:result.transaction}));
           Cart.setCheckedOut(cartid,function(err){
-            return res.send({amount:amount});
+            if(err){
+              return next(err);
+            }
+            Order.createNew(orderdata,function(err2,order){
+              if(err2){
+                return next(err2);
+              }
+              logger.info('created new order orderid='+order._id+' ,amount='+amount);
+              return res.send({amount:amount});
+            });
           });
         }else{
           next(err);

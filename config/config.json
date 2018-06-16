@@ -10,5 +10,5 @@
   "aws_products_foldername": "products",
 
 
-  "localhost":true
+  "localhost":false
 }

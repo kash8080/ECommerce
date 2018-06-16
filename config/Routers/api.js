@@ -6,6 +6,7 @@ const Category=require('../../app/models/Category');
 const Product=require('../../app/models/Product');
 const passport=require('passport');
 const AuthRouter = require('./AuthRouter');
+const OrdersRouter = require('./OrdersRouter');
 const UserRouter = require('./UserRouter');
 const PaymentRouter = require('./PaymentRouter');
 const ProductsRouter = require('./ProductsRouter');
@@ -41,6 +42,7 @@ client.on("connect", function () {
 });
 
 new AuthRouter(router,client);
+new OrdersRouter(router,client);
 new UserRouter(router);
 new PaymentRouter(router,client);
 new ProductsRouter(router,client);

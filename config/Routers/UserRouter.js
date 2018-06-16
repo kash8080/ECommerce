@@ -4,6 +4,7 @@ const jwtCheck= require('../middlewares/jwtCheck');
 var UnAuthorizedError = require('../errors/UnAuthorizedError');
 var NotLoggedInError = require('../errors/NotLoggedInError');
 var NotFoundError = require('../errors/NotFoundError');
+const JwtWhitelistCheck= require('../middlewares/JwtWhitelistCheck');
 
 const config  = require('../config');
 
@@ -15,10 +16,15 @@ class UserRouter {
   }
 
   registerRoutes() {
-    this.router.get('/users/:username',jwtCheck, this.getUser.bind(this));
-    this.router.post('/users/updateUser',jwtCheck, this.updateUser.bind(this));
+    this.router.get('/users/:username',jwtCheck,this.addRedisClientMiddleware.bind(this),JwtWhitelistCheck, this.getUser.bind(this));
+    this.router.post('/users/updateUser',jwtCheck,this.addRedisClientMiddleware.bind(this),JwtWhitelistCheck, this.updateUser.bind(this));
 
   }
+
+    addRedisClientMiddleware(req,res,next){
+      res.locals.redisClient=this.redisClient;
+      next();
+    }
 
 
   getUser(req,res,next){
