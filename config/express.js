@@ -30,6 +30,16 @@ module.exports = function (app, passport) {
 
   //Helmet helps you secure your Express apps by setting various HTTP headers
   app.use(helmet())
+  //app.set('trust proxy', 1);
+  app.all('*', (req, res, next) => {
+    // CORS headers
+    //use * to allow all or can set http://localhost:4200 for testing
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Key, Authorization');
+    next();
+  });
 
   app.use(express.static(path.resolve('./app/public')));
 
