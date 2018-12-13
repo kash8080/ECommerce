@@ -23,7 +23,7 @@
     "joi": "^13.4.0",
     "jsonwebtoken": "^8.2.0",
     "lodash": "^4.17.5",
-    "mongoose": "^5.0.12",
+    "mongoose": "^5.2.12",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "path": "^0.12.7",
