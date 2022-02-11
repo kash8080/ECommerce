@@ -16,7 +16,7 @@
     "braintree": "^2.11.0",
     "dotenv": "^5.0.1",
     "express": "^4.16.3",
-    "express-handlebars": "^3.0.0",
+    "express-handlebars": "^5.3.1",
     "express-jwt": "^5.3.1",
     "formidable": "^1.2.1",
     "helmet": "^3.12.0",
